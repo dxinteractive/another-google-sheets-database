@@ -1,0 +1,15 @@
+{
+  "generator-bigdatr-startr": {
+    "promptValues": {
+      "name": "another-google-sheets-database",
+      "description": "Another thing",
+      "version": "0.0.0",
+      "license": "MIT",
+      "private": false,
+      "author": "Damien Clarke",
+      "username": "dxinteractive",
+      "nameConstant": "ANOTHER_GOOGLE_SHEETS_DATABASE",
+      "example": true
+    }
+  }
+}
