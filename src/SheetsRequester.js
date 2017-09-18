@@ -1,8 +1,10 @@
 // @flow
 import {Wrap} from 'unmutable-lite';
+import {gapiSheetValues, rowToObject, rowFromObject, addNewId} from './Utils';
 
 const DEFAULT_CONFIG: Object = {
-    columnLimit: 'Y'
+    columnLimit: 'Y',
+    valueInputOption: 'RAW'
 };
 
 export default class SheetsRequester {
@@ -22,6 +24,32 @@ export default class SheetsRequester {
 
     sheet: Function = (sheet: string) => this.clone({sheet});
 
+    keys: Function = () => {
+        const {
+            columnLimit,
+            sheet,
+            spreadsheetId
+        } = this._config;
+
+        if(!sheet) {
+            throw new Error(`sheet name must be set (use SheetsRequester.sheet(sheet: string))`);
+        }
+
+        return gapiSheetValues()
+            .get({
+                spreadsheetId,
+                range: `${sheet}!A1:${columnLimit}1`
+            })
+            .then(
+                (response) => Wrap(response)
+                    .getIn(['result','values',0])
+                    .done(),
+                (error) => Promise.reject(error)
+            );
+
+        // todo error if _id is not a key?
+    };
+
     list: Function = () => {
         const {
             columnLimit,
@@ -29,46 +57,52 @@ export default class SheetsRequester {
             spreadsheetId
         } = this._config;
 
-        const values = Wrap(gapi)
-            .getIn(['client','sheets','spreadsheets','values'])
-            .done();
-
-        console.log()
-
-        if(!values) {
-            throw new Error(`gapi global variable (api v4) and gapi.sheets must be loaded`);
+        if(!sheet) {
+            throw new Error(`sheet name must be set (use SheetsRequester.sheet(sheet: string))`);
         }
+
+        return gapiSheetValues()
+            .get({
+                spreadsheetId,
+                range: `${sheet}!A1:${columnLimit}`
+            })
+            .then(
+                (response) => {
+                    let values = Wrap(response).getIn(['result','values']);
+                    let keys = values.first().done();
+                    return values
+                        .rest()
+                        .done() // flip this once map() is in unmutable-lite
+                        .map(ii => rowToObject(ii, keys));
+                },
+                (error) => Promise.reject(error)
+            );
+    };
+
+    push: Function = (item: Object) => {
+        const {
+            columnLimit,
+            sheet,
+            spreadsheetId,
+            valueInputOption
+        } = this._config;
 
         if(!sheet) {
             throw new Error(`sheet name must be set (use SheetsRequester.sheet(sheet: string))`);
         }
 
-        console.log("?");
-
-        return values
-            .get({
-                spreadsheetId,
-                range: `${sheet}!A1:${columnLimit}`,
-            })
-            .then(
-                (response) => {
-                    let values = Wrap(response).getIn(['result','values']);
-                    let keyLookup = values[0];
-
-                    let keyRow = (row) => row
-                        .reduce((obj, value, key) => {
-                            obj[keyLookup[key]] = value;
-                            return obj;
-                        }, {});
-
-                    return Wrap(values)
-                        .rest() // Add rest to unmutable lite!!!
-                        .map(keyRow)
-                        .done();
-                },
-                (error) => {
-                    console.log("ERROR", error);
-                }
-            );
-    }
+        return this.keys()
+            .then((keys) => {
+                let row: Array<*> = rowFromObject(addNewId(item), keys);
+                return gapiSheetValues()
+                    .append({
+                        spreadsheetId,
+                        range: `${sheet}!A1:${columnLimit}`,
+                        valueInputOption,
+                        resource: {
+                            values: [row]
+                        }
+                    });
+;           });
+    };
 }

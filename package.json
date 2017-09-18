@@ -93,6 +93,6 @@
     ]
   },
   "dependencies": {
-    "unmutable-lite": "^0.7.3"
+    "unmutable-lite": "^0.8.0"
   }
 }
