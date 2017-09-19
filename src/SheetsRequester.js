@@ -1,6 +1,6 @@
 // @flow
 import {Wrap} from 'unmutable-lite';
-import {gapiSheetValues, rowToObject, rowFromObject, addNewId} from './Utils';
+import {gapiSheetValues, fromSheetRow, toSheetRow, addNewId} from './Utils';
 
 const DEFAULT_CONFIG: Object = {
     columnLimit: 'Y',
@@ -47,7 +47,7 @@ export default class SheetsRequester {
                 (error) => Promise.reject(error)
             );
 
-        // todo error if _id is not a key?
+        // todo error if id is not a key?
     };
 
     list: Function = () => {
@@ -64,7 +64,8 @@ export default class SheetsRequester {
         return gapiSheetValues()
             .get({
                 spreadsheetId,
-                range: `${sheet}!A1:${columnLimit}`
+                range: `${sheet}!A1:${columnLimit}`,
+                valueRenderOption: "UNFORMATTED_VALUE"
             })
             .then(
                 (response) => {
@@ -73,7 +74,7 @@ export default class SheetsRequester {
                     return values
                         .rest()
                         .done() // flip this once map() is in unmutable-lite
-                        .map(ii => rowToObject(ii, keys));
+                        .map(ii => fromSheetRow(ii, keys));
                 },
                 (error) => Promise.reject(error)
             );
@@ -93,7 +94,7 @@ export default class SheetsRequester {
 
         return this.keys()
             .then((keys) => {
-                let row: Array<*> = rowFromObject(addNewId(item), keys);
+                let row: Array<*> = toSheetRow(addNewId(item), keys);
                 return gapiSheetValues()
                     .append({
                         spreadsheetId,
@@ -103,6 +104,7 @@ export default class SheetsRequester {
                             values: [row]
                         }
                     });
-;           });
+            });
+            //.then(() => this.list());
     };
 }

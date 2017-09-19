@@ -12,26 +12,46 @@ export const gapiSheetValues = () => {
     return values;
 };
 
-export const rowToObject = (row: Array<*>, keys: Array<string>): Object => {
+export const toSheetValue = (value: *): string|number|boolean => {
+    if(['number', 'boolean', 'string'].indexOf(typeof value) === -1) {
+        return `"${JSON.stringify(value)}"`;
+    }
+    if(typeof value === "string" && value.slice(0, 1) === '"') {
+        return `"${value}"`;
+    }
+    return value;
+};
+
+export const fromSheetValue = (value: string|number|boolean): * => {
+    if(typeof value !== "string") {
+        return value;
+    }
+    if(value.slice(0, 1) === '"') {
+        return JSON.parse(value.slice(1, -1));
+    }
+    return value;
+}
+
+export const fromSheetRow = (row: Array<*>, keys: Array<string>): Object => {
     return row
         .reduce((obj, value, key) => {
             let columnName = keys[key];
             if(columnName) {
-                obj[columnName] = value;
+                obj[columnName] = fromSheetValue(value);
             }
             return obj;
         }, {});
 };
 
-export const rowFromObject = (obj: Object, keys: Array<string>): Array<*> => {
-    return keys.map(ii => obj[ii]);
+export const toSheetRow = (obj: Object, keys: Array<string>): Array<*> => {
+    return keys.map(ii => toSheetValue(obj[ii]));
 };
 
 export const addNewId = (obj: Object): Object => ({
     ...obj,
-     _id: generateId()
+     id: generateId()
 });
 
 export const generateId = () => {
-    return new Date().valueOf().toString(36) + Math.random().toString(36).substr(2);
+    return Math.random().toString(36).substr(2) + new Date().valueOf().toString(36);
 };
