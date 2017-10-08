@@ -4,7 +4,7 @@ import {Wrap} from 'unmutable-lite';
 export const gapiSheetValues = () => {
     let values = Wrap(gapi)
         .getIn(['client','sheets','spreadsheets','values'])
-        .done();
+        .value;
 
     if(!values) {
         throw new Error(`gapi global variable (api v4) and gapi.sheets must be loaded`);
@@ -32,7 +32,7 @@ export const fromSheetValue = (value: string|number|boolean): * => {
     return value;
 }
 
-export const fromSheetRow = (row: Array<*>, keys: Array<string>): Object => {
+export const fromSheetRow = (row: Array<*>, index: number, keys: Array<string>): Object => {
     return row
         .reduce((obj, value, key) => {
             let columnName = keys[key];
@@ -40,7 +40,9 @@ export const fromSheetRow = (row: Array<*>, keys: Array<string>): Object => {
                 obj[columnName] = fromSheetValue(value);
             }
             return obj;
-        }, {});
+        }, {
+            id: index // default the index to row number
+        });
 };
 
 export const toSheetRow = (obj: Object, keys: Array<string>): Array<*> => {

@@ -43,7 +43,7 @@ export default class SheetsRequester {
             .then(
                 (response) => Wrap(response)
                     .getIn(['result','values',0])
-                    .done(),
+                    .value,
                 (error) => Promise.reject(error)
             );
 
@@ -64,17 +64,16 @@ export default class SheetsRequester {
         return gapiSheetValues()
             .get({
                 spreadsheetId,
-                range: `${sheet}!A1:${columnLimit}`,
-                valueRenderOption: "UNFORMATTED_VALUE"
+                range: `${sheet}!A1:${columnLimit}`
             })
             .then(
                 (response) => {
                     let values = Wrap(response).getIn(['result','values']);
-                    let keys = values.first().done();
+                    let keys = values.first().value;
                     return values
                         .rest()
-                        .done() // flip this once map() is in unmutable-lite
-                        .map(ii => fromSheetRow(ii, keys));
+                        .map((ii, kk) => fromSheetRow(ii.value, kk, keys))
+                        .value;
                 },
                 (error) => Promise.reject(error)
             );
