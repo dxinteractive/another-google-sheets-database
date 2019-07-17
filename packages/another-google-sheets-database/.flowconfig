@@ -1,0 +1,10 @@
+[options]
+module.file_ext=.js
+module.file_ext=.jsx
+module.system.node.resolve_dirname=node_modules
+module.system.node.resolve_dirname=src
+server.max_workers=1
+
+[ignore]
+<PROJECT_ROOT>/coverage/.*
+<PROJECT_ROOT>/node_modules/immutable/.*

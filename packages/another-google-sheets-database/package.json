@@ -1,0 +1,40 @@
+{
+  "name": "another-google-sheets-database",
+  "version": "0.1.0",
+  "description": "Yet another use-google-sheets-like-a-db type thing.",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "author": "Damien Clarke",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dxinteractive/another-google-sheets-database.git"
+  },
+  "files": [
+    "lib"
+  ],
+  "bugs": {
+    "url": "https://github.com/dxinteractive/another-google-sheets-database/issues"
+  },
+  "private": false,
+  "scripts": {
+    "build": "rm -rf lib && NODE_ENV=production yarn babel src --out-dir lib --ignore '**/__test__/*.js'",
+    "build-all": "yarn build",
+    "flow": "blueflag-test flow",
+    "flow-coverage": "blueflag-test flow-coverage",
+    "lint": "blueflag-test lint",
+    "size": "size-limit",
+    "test": "yarn build && yarn jest --maxWorkers=1",
+    "test-all": "yarn build && yarn flow && yarn lint && yarn size",
+    "watch": "yarn run build -w"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.1.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "babel-preset-blueflag": "^1.0.0",
+    "blueflag-test": "^0.22.0",
+    "size-limit": "^0.21.1"
+  }
+}

@@ -4,10 +4,16 @@
 .DS_Store
 .env
 .nyc_output
+.cache
+*.orig
+*.log
+
 
 # Folders
 coverage
+flow-coverage
 dist
-docs
 lib
-node_modules
+**/node_modules
+public
+.yalc

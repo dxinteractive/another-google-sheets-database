@@ -1,0 +1,6 @@
+[
+    {
+        limit: "4 KB",
+        path: "lib/index.js"
+    }
+]

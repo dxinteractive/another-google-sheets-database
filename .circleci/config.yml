@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: blueflag/client-build:0.0.7
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys: ['another-google-sheets-database-deps-{{ checksum "yarn.lock" }}']
+
+      - run: yarn prep
+
+      - save_cache:
+          key: another-google-sheets-database-deps-{{ checksum "yarn.lock" }}
+          paths: ['packages/another-google-sheets-database/node_modules']
+
+      - run: git diff | cat
+      - run: test -z "$(git status --porcelain)"
+      - run: yarn test-all
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build:
+          context: org-global
