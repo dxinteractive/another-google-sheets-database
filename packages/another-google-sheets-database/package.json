@@ -1,6 +1,6 @@
 {
   "name": "another-google-sheets-database",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Yet another use-google-sheets-like-a-db type thing.",
   "main": "lib/index.js",
   "license": "MIT",
